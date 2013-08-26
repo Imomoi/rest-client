@@ -1,6 +1,9 @@
 require File.join( File.dirname(File.expand_path(__FILE__)), '../base')
 
 describe RestClient::Request do
+  before { WebMock.allow_net_connect! }
+  after { WebMock.disable_net_connect! }
+
   shared_examples 'an http client' do
     describe "ssl verification" do
       it "is successful with the correct ca_file" do

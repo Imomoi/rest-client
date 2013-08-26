@@ -147,24 +147,28 @@ module RestClient
       net = Net::HTTP::Persistent.new(app_name, proxy)
 
       net.ssl_version = @ssl_version
+
+      net.cert = @ssl_client_cert if @ssl_client_cert
+      
+      net.cert_store = @cert_store || OpenSSL::X509::Store.new
+      net.cert_store.add_path(@ssl_ca_path) if @ssl_ca_path
+      net.key = @ssl_client_key if @ssl_client_key
+      net.ca_file = @ssl_ca_file if @ssl_ca_file
+
+
       err_msg = nil
       if (@verify_ssl == false) || (@verify_ssl == OpenSSL::SSL::VERIFY_NONE)
         net.verify_mode = OpenSSL::SSL::VERIFY_NONE
       elsif @verify_ssl.is_a? Integer
         net.verify_mode = @verify_ssl
-        net.verify_callback = lambda do |preverify_ok, ssl_context|
-          if (!preverify_ok) || ssl_context.error != 0
+        net.cert_store.verify_callback = lambda do |ssl_context|
+          if ssl_context.error != 0
             err_msg = "SSL Verification failed -- Preverify: #{preverify_ok}, Error: #{ssl_context.error_string} (#{ssl_context.error})"
             return false
           end
           true
         end
       end
-      net.cert = @ssl_client_cert if @ssl_client_cert
-      net.cert_store = @cert_store if @cert_store
-      net.key = @ssl_client_key if @ssl_client_key
-      net.ca_file = @ssl_ca_file if @ssl_ca_file
-      net.cert_store = @ssl_ca_path if @ssl_ca_path
       net.read_timeout = @timeout if @timeout
       net.open_timeout = @open_timeout if @open_timeout
 
@@ -185,6 +189,12 @@ module RestClient
         res = net.request(uri, req) { |http_response| fetch_body(http_response) }
         log_response res
         process_result res, & block
+      end
+    rescue Net::HTTP::Persistent::Error => e
+      if !e.message.index("SSL").nil?
+        raise SSLCertificateNotVerified.new(e.message)
+      else
+        raise e
       end
     rescue OpenSSL::SSL::SSLError => e
       if err_msg

@@ -17,6 +17,7 @@ describe RestClient::Request do
     Net::HTTP::Persistent.stub(:new).and_return(@net)
     @net.stub(:start).and_yield(@http)
     @net.stub(:use_ssl=)
+    @net.stub(:cert_store=)
     @net.stub(:verify_mode=)
 
     RestClient.log = nil
@@ -222,7 +223,7 @@ describe RestClient::Request do
       @request.should_receive(:process_result)
 
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', nil)
+      @request.transmit(@uri, @req, nil)
     end
 
     it "passes non-hash payloads straight through" do
@@ -256,7 +257,7 @@ describe RestClient::Request do
 
       @request.stub(:user).and_return('joe')
       @request.stub(:password).and_return('mypass')
-      @request.should_receive(:setup_credentials).with('req')
+      @request.should_receive(:setup_credentials).with(@req)
 
       @request.transmit(@uri, @req, nil)
     end
@@ -476,7 +477,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should default to not verifying ssl certificates" do
@@ -489,7 +490,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should not set net.verify_mode to OpenSSL::SSL::VERIFY_NONE if verify_ssl is true" do
@@ -499,7 +500,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should set net.verify_mode to the passed value if verify_ssl is an OpenSSL constant" do
@@ -515,7 +516,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should default to not having an ssl_client_cert" do
@@ -535,7 +536,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should not set the ssl_client_cert if it is not provided" do
@@ -550,7 +551,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should default to not having an ssl_client_key" do
@@ -570,7 +571,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should not set the ssl_client_key if it is not provided" do
@@ -585,7 +586,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should default to not having an ssl_ca_file" do
@@ -605,7 +606,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should not set the ssl_ca_file if it is not provided" do
@@ -620,7 +621,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should default to not having an ssl_ca_path" do
@@ -640,7 +641,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
 
     it "should not set the ssl_ca_path if it is not provided" do
@@ -655,7 +656,7 @@ describe RestClient::Request do
       @http.stub(:request)
       @request.stub(:process_result)
       @request.stub(:response_log)
-      @request.transmit(@uri, 'req', 'payload')
+      @request.transmit(@uri, @req, 'payload')
     end
   end
 
