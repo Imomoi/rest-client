@@ -164,7 +164,7 @@ module RestClient
       net.cert_store = @cert_store if @cert_store
       net.key = @ssl_client_key if @ssl_client_key
       net.ca_file = @ssl_ca_file if @ssl_ca_file
-      net.ca_path = @ssl_ca_path if @ssl_ca_path
+      net.cert_store = @ssl_ca_path if @ssl_ca_path
       net.read_timeout = @timeout if @timeout
       net.open_timeout = @open_timeout if @open_timeout
 
